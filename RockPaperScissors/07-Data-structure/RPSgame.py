@@ -1,9 +1,25 @@
 import random
 
+rolls = {
+    'rock': {
+        'defeats': ['scissors'],
+        'defeated_by': ['paper']
+    },
+    'paper': {
+        'defeats': ['rock'],
+        'defeated_by': ['scissors']
+    },
+    'scissors': {
+        'defeats': ['paper'],
+        'defeated_by': ['rock']
+    }
+
+}
+
 
 def main():
     show_header()
-    player = input("What is your name? ")
+    player = "You"
     ai = "Computer"
 
     play_game(player, ai)
@@ -11,27 +27,26 @@ def main():
 
 def show_header():
     print("------------------")
-    print(" Rock Paper Scissors V1")
+    print(" Rock Paper Scissors V2")
+    print(" Data Structure Edition")
     print("------------------")
 
 
 def play_game(player_1, player_2):
-    rounds = 3
-    wins_p1 = 0
-    wins_p2 = 0
-    rolls = ["rock", "paper", "scissors"]
+    wins = {player_1: 0, player_2: 0}
 
-    while wins_p1 < rounds and wins_p2 < rounds:
+    roll_names = list(rolls.keys())
 
-        roll1 = get_roll(player_1, rolls)
-
+    while not find_winner(wins, wins.keys()):
+        roll1 = get_roll(player_1, roll_names)
         if not roll1:
             print("Try again")
             continue
 
-        roll2 = random.choice(rolls)
+        roll2 = random.choice(roll_names)
         print(f"{player_1} rolls {roll1}")
         print(f"{player_2} rolls {roll2}")
+
 
         winner = check_for_winning_throw(player_1, player_2, roll1, roll2)
 
@@ -39,18 +54,23 @@ def play_game(player_1, player_2):
             print("This round was a tie")
         else:
             print(f"The winner of this round is {winner}")
-            if winner == player_1:
-                wins_p1 += 1
-            else:
-                wins_p2 += 1
-        print(f"{player_1} as {wins_p1} win and {player_2} has {wins_p2} win\n")
+            wins[winner] += 1
 
-    overall_winner = None
-    if wins_p1 == rounds:
-        overall_winner = player_1
-    else:
-        overall_winner = player_2
+        print(f"{player_1} has {wins[player_1]} win and {player_2} has {wins[player_2]} win")
+
+    overall_winner = find_winner(wins, wins.keys())
     print(f"{overall_winner} wins the game")
+
+
+
+
+def find_winner(wins, names):
+    best_of = 3
+    for name in names:
+        if wins.get(name, 0) >= best_of:
+            return name
+
+    return None
 
 
 def check_for_winning_throw(player_1, player_2, roll1, roll2):
@@ -58,35 +78,27 @@ def check_for_winning_throw(player_1, player_2, roll1, roll2):
     winner = None
     if roll1 == roll2:
         print("It's a tie")
-    elif roll1 == "rock":
-        if roll2 == "paper":
-            winner = player_2
-        else:
-            winner = player_1
-    elif roll1 == "paper":
-        if roll2 == "scissors":
-            winner = player_2
-        else:
-            winner = player_1
-    elif roll1 == "scissors":
-        if roll2 == "rock":
-            winner = player_2
-        else:
-            winner = player_1
+
+    outcome = rolls.get(roll1, {})
+    if roll2 in outcome.get('defeats'):
+        return player_1
+    elif roll2 in outcome.get('defeated_by'):
+        return player_2
+
     return winner
 
 
-def get_roll(player_name, rolls):
-    for index, r in enumerate(rolls, start=1):
+def get_roll(player_name, roll_names):
+    for index, r in enumerate(roll_names, start=1):
         print(f"{index} : {r}")
 
-    text = input(f"{player_name}, what is your pick? [rock,paper,scissors]: ")
+    text = input(f"{player_name}, what is your pick?: ")
     selected_index = int(text) - 1
 
     if selected_index < 0 or selected_index >= len(rolls):
         print(f"Sorry {player_name}, {text} is not a valid play!")
         return None
-    return rolls[selected_index]
+    return roll_names[selected_index]
 
 
 if __name__ == '__main__':
